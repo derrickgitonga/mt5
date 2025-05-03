@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MT5 Trading Platform Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lightweight-charts/lib/lightweight-charts.umd.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom CSS for scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
+        }
+        #chart-container {
+            width: 100%;
+            height: 300px;
+            border-radius: 0.5rem;
+            background-color: #f7f7f7;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-semibold">MT5 Web Trader Prototype</h1>
+        <nav class="space-x-4">
+            <a href="#" class="hover:text-blue-200 transition duration-300">File</a>
+            <a href="#" class="hover:text-blue-200 transition duration-300">View</a>
+            <a href="#" class="hover:text-blue-200 transition duration-300">Insert</a>
+            <a href="#" class="hover:text-blue-200 transition duration-300">Charts</a>
+            <a href="#" class="hover:text-blue-200 transition duration-300">Tools</a>
+            <a href="#" class="hover:text-blue-200 transition duration-300">Window</a>
+            <a href="#" class="hover:text-blue-200 transition duration-300">Help</a>
+        </nav>
+    </header>
+
+    <div class="container mx-auto grid grid-cols-4 gap-6 p-6">
+        <section class="col-span-1 bg-white rounded-lg shadow-md p-4">
+            <h2 class="text-lg font-semibold mb-4">Market Watch</h2>
+            <div class="mb-4">
+                <input type="text" placeholder="Search Symbols" class="w-full p-2 rounded border border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-300">
+            </div>
+            <ul class="space-y-2 overflow-y-auto max-h-[200px]">
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="EURUSD">EURUSD</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="GBPUSD">GBPUSD</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="USDJPY">USDJPY</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="AUDUSD">AUDUSD</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="USDCAD">USDCAD</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="USDCHF">USDCHF</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="NZDUSD">NZDUSD</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="EURGBP">EURGBP</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="GBPJPY">GBPJPY</li>
+                <li class="bg-gray-100 p-2 rounded hover:bg-gray-200 cursor-pointer" data-symbol="EURAUD">EURAUD</li>
+            </ul>
+        </section>
+
+        <section class="col-span-3 bg-white rounded-lg shadow-md p-4">
+            <h2 class="text-lg font-semibold mb-4">Chart</h2>
+            <div id="chart-container"></div>
+            <div class="flex justify-between items-center mt-4">
+                <div class="flex space-x-2">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Buy</button>
+                    <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Sell</button>
+                </div>
+                <div class="flex space-x-2">
+                    <select id="timeframe-select" class="border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-300">
+                        <option value="1">1 Minute</option>
+                        <option value="5">5 Minutes</option>
+                        <option value="15">15 Minutes</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="60">1 Hour</option>
+                        <option value="240">4 Hours</option>
+                        <option value="1440">1 Day</option>
+                        <option value="10080">1 Week</option>
+                        <option value="43200">1 Month</option>
+                    </select>
+                    <select id="chart-type-select" class="border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-300">
+                        <option value="line">Line Chart</option>
+                        <option value="candle">Candlestick Chart</option>
+                        <option value="bar">Bar Chart</option>
+                    </select>
+                    <button id="add-indicator-button" class="bg-white border border-gray-300 rounded p-2 hover:bg-gray-100 focus:outline-none focus:ring focus:ring-blue-200" title="Add Indicator">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-4m0 0V4m0 4h7m-7 0H2m5 16v-4m0 0V8m0 4h7m-7 0H2" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="container mx-auto grid grid-cols-1 gap-6 p-6">
+        <section class="bg-white rounded-lg shadow-md p-4">
+            <h2 class="text-lg font-semibold mb-4">Terminal</h2>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="bg-gray-100 p-2 rounded cursor-pointer">Trade</div>
+                <div class="bg-gray-100 p-2 rounded cursor-pointer">Exposure</div>
+                <div class="bg-gray-100 p-2 rounded cursor-pointer">History</div>
+            </div>
+            <div class="bg-gray-200 h-[200px] w-full rounded-md flex items-center justify-center overflow-y-auto">
+                 <p class="text-gray-500">Terminal Area (Trade Details, Account Balance, etc.)</p>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-4">
+            <h2 class="text-lg font-semibold mb-4">Strategy Tester</h2>
+            <div class="mb-4">
+                <select class="border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-300">
+                    <option>Select Strategy</option>
+                    <option>Moving Average Crossover</option>
+                    <option>MACD Oscillator</option>
+                    <option>RSI Indicator</option>
+                </select>
+                <div class="mt-2 flex space-x-2">
+                    <label class="text-gray-700">From:</label>
+                    <input type="date" class="border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-300">
+                    <label class="text-gray-700">To:</label>
+                    <input type="date" class="border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-300">
+                    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Start Test</button>
+                </div>
+            </div>
+            <div class="bg-gray-200 h-[200px] w-full rounded-md flex items-center justify-center overflow-y-auto">
+                <p class="text-gray-500">Strategy Tester Results (Graphical and numerical output)</p>
+            </div>
+        </section>
+    </div>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+        <p>&copy; 2024 MT5 Web Trader Prototype. All rights reserved.</p>
+    </footer>
+
+    <script>
+       const marketWatchList = document.querySelector('.col-span-1 ul');
+        const chartContainer = document.getElementById('chart-container');
+        const terminalArea = document.querySelector('.grid-cols-1 .bg-gray-200');
+        const strategyTesterArea = document.querySelectorAll('.grid-cols-1 .bg-gray-200')[1];
+        const timeframeSelect = document.getElementById('timeframe-select');
+        const chartTypeSelect = document.getElementById('chart-type-select');
+        const addIndicatorButton = document.getElementById('add-indicator-button');
+
+        let chart;
+        let currentSymbol = 'EURUSD';
+        let currentInterval = '1'; // Default to 1 minute
+        let chartType = 'line'; // Default to line chart
+        let historicalData = {}; // Store fetched data
+        let chartSeries;
+
+
+        function createChart(symbol) {
+            chartContainer.innerHTML = ''; // Clear previous chart
+            chart = LightweightCharts.createChart(chartContainer, {
+                autoSize: true,
+                priceScale: {
+                    position: 'right',
+                },
+                handleScroll: {
+                    mouseWheel: true,
+                    xAxis: true,
+                    yAxis: true,
+                },
+                handleScale: {
+                    axisPressedMouseMove: true,
+                    mouseWheel: true,
+                    pinch: true,
+                },
+            });
+
+            switch (chartType) {
+                case 'line':
+                    chartSeries = chart.addLineSeries({
+                         priceFormat: {
+                            type: 'price',
+                            precision: 4,
+                        },
+                    });
+                    break;
+                case 'candle':
+                    chartSeries = chart.addCandlestickSeries({
+                         priceFormat: {
+                            type: 'price',
+                            precision: 4,
+                        },
+                    });
+                    break;
+                case 'bar':
+                    chartSeries = chart.addBarSeries({
+                         priceFormat: {
+                            type: 'price',
+                            precision: 4,
+                        },
+                    });
+                    break;
+                default:
+                    chartSeries = chart.addLineSeries({
+                         priceFormat: {
+                            type: 'price',
+                            precision: 4,
+                        },
+                    });
+            }
+
+            fetchHistoricalData(symbol, currentInterval);
+            return chartSeries;
+        }
+
+
+        function fetchHistoricalData(symbol, interval) {
+            // In a real application, you would fetch data from your broker or a financial data provider.
+            // This is a *simulation* using random data.  Replace this with your actual data source.
+
+            if (historicalData[symbol + interval]) {
+                // If data is already cached, use it
+                updateChart(historicalData[symbol + interval], symbol);
+                return;
+            }
+
+            const simulatedData = [];
+            let price = Math.random() * 100 + 100;
+            const startTime = new Date(Date.now() - 100 * 60 * 1000 * parseInt(interval)); // 100 data points
+
+            for (let i = 0; i < 100; i++) {
+                const time = new Date(startTime.getTime() + i * 60 * 1000 * parseInt(interval)).getTime() / 1000;
+                const open = price;
+                const high = price + Math.random() * 5;
+                const low = price - Math.random() * 5;
+                const close = price + (Math.random() - 0.5) * 10;
+                price = close;
+
+                simulatedData.push({
+                    time: time,
+                    open: open.toFixed(2),
+                    high: high.toFixed(2),
+                    low: low.toFixed(2),
+                    close: close.toFixed(2),
+                });
+            }
+            historicalData[symbol + interval] = simulatedData; //cache
+            updateChart(simulatedData, symbol);
+        }
+
+        function updateChart(data, symbol) {
+            if (!chart) {
+                chartSeries = createChart(symbol);
+            }
+            if (chartSeries) {
+                chartSeries.setData(data);
+            }
+        }
+
+
+
+        marketWatchList.addEventListener('click', (event) => {
+            if (event.target.tagName === 'LI') {
+                currentSymbol = event.target.dataset.symbol;
+                fetchHistoricalData(currentSymbol, currentInterval);
+                terminalArea.innerHTML = `<p class="text-gray-700 p-4">Trade information for ${currentSymbol} will be displayed here.</p>`;
+                strategyTesterArea.innerHTML = `<p class="text-gray-700 p-4">Strategy test results for ${currentSymbol} will be displayed here.</p>`;
+            }
+        });
+
+        timeframeSelect.addEventListener('change', (event) => {
+            currentInterval = event.target.value;
+            fetchHistoricalData(currentSymbol, currentInterval);
+        });
+
+        chartTypeSelect.addEventListener('change', (event) => {
+            chartType = event.target.value;
+            createChart(currentSymbol); //recreate the chart.
+            fetchHistoricalData(currentSymbol, currentInterval);
+        });
+
+        addIndicatorButton.addEventListener('click', () => {
+            alert('Add Indicator functionality will be implemented here.');
+        });
+
+        // Initial chart setup
+        chartSeries = createChart(currentSymbol);
+
+        // Simulate live chart updates (replace with actual data feed)
+        function simulateLiveData(symbol) {
+            if (!chartSeries) return;
+            let lastBar = chartSeries.lastBar();
+            let newPrice = lastBar ? parseFloat(lastBar.close) + (Math.random() - 0.5) * 10 : Math.random() * 100 + 100;
+             const newTime = new Date().getTime() / 1000;
+
+            const open = lastBar ? parseFloat(lastBar.close) : newPrice;
+            const high = Math.max(open, newPrice + Math.random() * 5);
+            const low = Math.min(open, newPrice - Math.random() * 5);
+            const close = newPrice;
+
+
+            const newData = {
+                time: newTime,
+                open: open.toFixed(2),
+                high: high.toFixed(2),
+                low: low.toFixed(2),
+                close: close.toFixed(2),
+            };
+
+            chartSeries.update(newData);
+
+             // Update Terminal (replace with actual trade/account updates)
+            const terminalContent = terminalArea.querySelector('p');
+            if (terminalContent) {
+                 terminalArea.innerHTML = `<p class="text-gray-700 p-4">Trade information: Updated price for ${symbol} is ${newData.close}</p>`;
+            }
+        }
+
+        setInterval(() => {
+           simulateLiveData(currentSymbol);
+        }, 2000);
+    </script>
+</body>
+</html>
